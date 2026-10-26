@@ -1,0 +1,428 @@
+<!DOCTYPE html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>BLOKLAND 2009</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{height:100%;margin:0;overflow:hidden;background:#8ec9f0;font-family:Verdana,Tahoma,sans-serif;color:#fff;user-select:none;touch-action:none}
+canvas{position:fixed;inset:0;display:block}
+.btn{display:block;width:100%;margin:8px 0;padding:11px 16px;font:bold 15px Verdana,sans-serif;color:#fff;text-shadow:1px 1px #000;background:linear-gradient(#6cbcff,#0a5fc2 55%,#0a4fa0);border:2px solid #003a7a;border-radius:6px;cursor:pointer;box-shadow:inset 0 1px #bfe2ff}
+.btn:hover{filter:brightness(1.15)}.btn.g{background:linear-gradient(#7ddc5a,#2c8f1a 55%,#237514);border-color:#14500a}.btn.r{background:linear-gradient(#ff8a80,#c4281c 55%,#a01f14);border-color:#600}
+#menu{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(#2a8fe0,#9bd4f7 60%,#4a9a3a 60%,#3b7d2c);overflow:auto}
+#logo{font:900 clamp(34px,8vw,68px) Impact,Verdana,sans-serif;letter-spacing:3px;margin-bottom:6px;text-shadow:3px 3px 0 #000}
+#logo i{font-style:normal;display:inline-block;padding:0 4px;margin:0 2px;border:3px solid #000;box-shadow:inset 0 -6px rgba(0,0,0,.25)}
+.panel{width:min(340px,88vw);background:rgba(10,25,60,.82);border:3px solid #fff;border-radius:10px;padding:14px 18px}
+.panel h3{margin:0 0 6px;text-align:center;text-shadow:1px 1px #000}.panel p,.panel li{font-size:13px;line-height:1.5}
+.sw{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}.sw b{width:26px;height:26px;border:2px solid #000;cursor:pointer}.sw b:hover{outline:2px solid #fff}
+.scr{display:none}.scr.on{display:block}
+#hud{position:fixed;z-index:5;display:none;inset:0;pointer-events:none}
+#hud .top{position:absolute;left:10px;top:10px;background:rgba(0,0,0,.55);border:2px solid #fff;border-radius:6px;padding:6px 10px;font-size:13px;font-weight:bold;min-width:150px}
+.hp{height:10px;background:#400;border:1px solid #000;margin-top:4px}.hp div{height:100%;background:linear-gradient(#7f7,#2a2);width:100%}
+#top2{position:absolute;right:10px;top:10px;display:flex;gap:6px;pointer-events:auto}#top2 .btn{margin:0;width:auto;padding:7px 11px;font-size:12px}
+#chat{position:absolute;left:10px;bottom:10px;width:min(330px,70vw);pointer-events:auto}
+#log{max-height:130px;overflow:hidden;font-size:12px;background:rgba(0,0,0,.4);padding:4px 6px;border-radius:4px 4px 0 0;text-shadow:1px 1px #000}
+#ci{width:100%;box-sizing:border-box;border:2px solid #003a7a;background:#fff;padding:5px;font:12px Verdana}
+#tb{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);display:none;background:rgba(0,0,0,.6);border:2px solid #fff;border-radius:8px;padding:6px 8px;pointer-events:auto;max-width:56vw}
+#tb .sw{justify-content:center;margin:3px 0}#tb small{display:block;text-align:center;font-size:11px}
+.sz{display:inline-block;margin:2px;padding:3px 7px;font-size:11px;border:2px solid #fff;border-radius:4px;cursor:pointer;background:#235}.sz.on{background:#0a5fc2}
+#toast{position:absolute;top:22%;left:50%;transform:translateX(-50%);font:900 28px Impact,Verdana;text-shadow:2px 2px #000;opacity:0;transition:opacity .4s;text-align:center}
+#pad{position:absolute;inset:0;display:none;pointer-events:none}#pad span{pointer-events:auto;touch-action:none}#hud.mob #chat{bottom:auto;top:58px;width:46vw}#hud.mob #log{max-height:70px}#pad span{position:absolute;width:48px;height:48px;background:rgba(255,255,255,.35);border-radius:50%;text-align:center;line-height:48px;font-size:20px}
+.fig{position:relative;width:80px;height:130px;margin:6px auto}.fig div{position:absolute;border:2px solid #000;box-sizing:border-box}
+
+#menu{display:block;background:#fff;color:#000;overflow:auto;padding:0}
+#pg{max-width:900px;margin:0 auto;background:#fff;font-family:Tahoma,Verdana,sans-serif;font-size:13px;color:#000}
+#hdr{display:flex;height:76px;border:3px solid #333;border-bottom:0}
+#lg{width:283px;max-width:36%;background:linear-gradient(90deg,#3a0a0a,#8a1414 50%,#2a0505);position:relative;overflow:hidden;flex:none}
+#lg a{position:absolute;left:4px;top:2px;font:bold 14px Arial;color:#fff;cursor:pointer;z-index:2}
+.mf{position:absolute;bottom:0;width:24px;height:46px}
+#bn{flex:1;display:flex;align-items:center;justify-content:space-around;background:linear-gradient(90deg,#fff 58%,#1c2fc4);min-width:0}
+#blogo{font:900 clamp(26px,6vw,48px) Impact,'Arial Black',sans-serif;color:#fff;-webkit-text-stroke:2.5px #d4201c;paint-order:stroke fill;letter-spacing:1px}
+#tc{font:22px Tahoma,sans-serif;color:#2a4fc4;line-height:1.1}#tc b{color:#1a3aa8}
+#pn{font:bold clamp(14px,3vw,22px) Arial;color:#fff;background:linear-gradient(#7d9be0,#4e6fc2);border:1px solid #fff;border-radius:6px;padding:6px 12px;cursor:pointer;text-shadow:1px 1px #335}
+#nav{background:#6b8fc7;text-align:center;padding:9px 4px;font-size:clamp(12px,2.5vw,20px);color:#fff}
+#nav a{color:#fff;cursor:pointer;margin:0 5px;white-space:nowrap}#nav a:hover{text-decoration:underline}
+#cols{display:flex;gap:10px;align-items:flex-start;margin-top:6px}
+#side{width:150px;flex:none}
+#lb{background:#eee;border:1px solid #444}#lb .t{background:#ccc;padding:5px 8px;letter-spacing:1px;border-bottom:1px solid #666}
+#lb label{display:block;font:bold 11px 'Comic Sans MS',Tahoma,sans-serif;margin:6px 0 2px 4px}
+#lb input{width:136px;box-sizing:border-box;margin-left:4px;border:2px dashed #666;background:#fff;font-size:12px;padding:2px}
+#lb button{font-size:11px;padding:2px 14px;border:1px solid #999;background:#f4f4f4;cursor:pointer}
+#net{font-size:11px;color:#2a8a2a;text-align:center;margin-top:6px}
+#main{flex:1;min-width:0;background:#eee;border:1px solid #333;padding:12px 10px;min-height:380px;color:#222;box-sizing:border-box}
+#main h1{font:26px 'Comic Sans MS','Comic Neue',cursive,sans-serif;letter-spacing:1px;margin:2px 0 8px;color:#222}
+#main h2{font:bold 16px 'Comic Sans MS',cursive,sans-serif;margin:0 0 4px}
+#main h3{font:bold 22px 'Comic Sans MS',cursive,sans-serif;margin:0 0 8px;color:#222}
+#main small,#main p,#main li{color:#333}
+#main .btn{display:inline-block;width:auto;margin:6px 6px 6px 0}
+.hm{display:flex;gap:14px;flex-wrap:wrap}.ft{flex:1;min-width:230px;position:relative}
+.row{display:flex;gap:9px;margin:16px 0}.row span{color:#666;font-size:12px;line-height:1.5}.row b{font:bold 17px 'Comic Sans MS',Arial,sans-serif;color:#222}
+.ic{width:50px;height:50px;border:1px solid #000;background:#fff;font-size:30px;display:flex;align-items:center;justify-content:center;font-style:normal;flex:none}
+#kid{width:126px;height:126px;border:1px solid #000;background:#fff;text-align:center;font-size:10px;margin-top:22px}
+.bd{width:98px;height:98px;border-radius:50%;background:#b9a9f0;margin:4px auto 2px;display:flex;flex-direction:column;justify-content:center;font:italic bold 21px Georgia,serif;color:#4a3a9a}
+.vid{width:410px;max-width:100%}
+.scene{height:300px;background:radial-gradient(circle,#46a74b 0 7px,#2b7f33 8px 9px,transparent 10px) 0 0/26px 26px,#2f8c3b;position:relative;overflow:hidden;border:1px solid #444}
+.bt{position:absolute;left:22px;top:16px;font:44px Georgia,serif;letter-spacing:4px;color:#fff;text-shadow:2px 2px 5px #000}
+.brick{position:absolute;left:120px;top:125px;width:190px;height:90px;background:radial-gradient(circle,#33495f 0 9px,transparent 10px) 12px 10px/44px 40px,#1b2a3a;transform:rotate(-20deg) skewX(-18deg);box-shadow:22px 30px 22px rgba(0,0,0,.45);border-radius:3px}
+.ctl{position:absolute;left:12px;right:12px;bottom:10px;height:28px;background:rgba(70,95,85,.85);border-radius:4px;color:#fff;font-size:14px;padding:4px 10px;box-sizing:border-box}
+.wy{text-align:right;font-size:10px;color:#666;margin-top:6px}
+#fdp{display:block;width:100%;margin-top:2px;font:bold 26px 'Comic Sans MS',Arial,sans-serif;background:#f5c518;border:2px solid #222;border-radius:12px;padding:8px;cursor:pointer;color:#111}#fdp:hover{background:#ffd740}
+#cool{display:flex;margin-top:6px;border:1px solid #333;align-items:center;flex-wrap:wrap}
+#cool .l{width:160px;background:#bbb;padding:10px;text-align:center;font-size:14px;align-self:stretch;box-sizing:border-box}#cool .l b{display:block;font:20px 'Comic Sans MS',cursive;margin-bottom:6px}
+.th{width:120px;height:80px;margin:8px 10px;cursor:pointer;border:1px solid #888;font-size:10px;color:#fff;text-shadow:1px 1px #000;display:flex;align-items:flex-end}.th:hover{outline:2px solid #6b8fc7}
+.th.e{border:2px dashed #ccc;background:#fff;cursor:default}.th.c{background:#aab;color:#222;text-shadow:none;text-align:center;align-items:center;justify-content:center;cursor:default}
+#foot{text-align:center;font-size:11px;color:#222;border-top:1px solid #ccc;margin-top:10px;padding:8px;line-height:1.5}#foot u{color:#00c}
+#plist div{padding:4px 0;border-bottom:1px solid #ccc}
+@media(max-width:700px){#cols{flex-direction:column}#side{width:100%}#hdr{height:60px}#tc{display:none}.scene{height:240px}}
+#pp{position:absolute;right:10px;top:54px;width:182px;background:rgba(0,0,0,.68);border:2px solid #fff;border-radius:8px;padding:6px;font-size:11px;display:none;pointer-events:auto;max-height:62vh;overflow:auto}
+#pp .pr{display:flex;gap:3px;align-items:center;margin:4px 0}#pp .pr>span:first-child{width:32px}#pp input{width:44px;font-size:11px;padding:1px;box-sizing:border-box}#pp .sw b{width:20px;height:20px}
+.pr{display:flex;gap:3px;align-items:center;margin:4px 0}.pr>span:first-child{width:32px}#props .sw b{width:20px;height:20px}
+#st{position:absolute;inset:0;pointer-events:none;display:none;font:11px Tahoma,Verdana,sans-serif;color:#000}
+#hud.studio #st{display:block}#hud.studio .top,#hud.studio #top2,#hud.studio #chat,#hud.studio #pl2,#hud.studio #vh,#hud.studio #vhl{display:none}
+#st>*{pointer-events:auto}
+#sttitle{position:absolute;left:0;right:0;top:0;height:22px;background:linear-gradient(#fff,#dfe8f5);border-bottom:1px solid #9ab;font-size:12px;line-height:22px;padding-left:8px}
+#sttitle i{position:absolute;right:0;top:0;width:34px;height:22px;text-align:center;font-style:normal;cursor:pointer}#sttitle i:hover{background:#e81123;color:#fff}
+#stmenu{position:absolute;left:0;right:0;top:22px;height:22px;background:#f0f0f0;border-bottom:1px solid #aaa;display:flex;overflow-x:auto}#stmenu span{padding:3px 9px;cursor:pointer}#stmenu span:hover{background:#cfe0f7}
+#sttb{position:absolute;left:0;right:0;top:44px;height:34px;background:linear-gradient(#fafafa,#dcdcdc);border-bottom:1px solid #999;display:flex;align-items:center;gap:2px;padding:0 6px;overflow-x:auto}
+.ib{width:28px;height:28px;border:1px solid transparent;border-radius:3px;background:none;font-size:16px;cursor:pointer;flex:none;padding:0}.ib:hover{border-color:#4a7ebb;background:#dbe8f8}.ib.on{border-color:#2a5aa0;background:#b7d0f0}
+.sp{width:1px;height:22px;background:#999;margin:0 4px;flex:none}
+#stsub{position:absolute;left:0;right:0;top:78px;height:28px;background:#e8e8e8;border-bottom:1px solid #999;display:flex;align-items:center;gap:4px;padding:0 6px;overflow-x:auto;color:#333;white-space:nowrap}
+.sb{font:11px Tahoma,sans-serif;padding:3px 8px;border:1px solid #888;border-radius:3px;background:linear-gradient(#fff,#ddd);cursor:pointer;flex:none;color:#000}.sb:active{background:#bcd}
+.pn{position:absolute;right:0;width:min(210px,46vw);background:#ece9d8;border:1px solid #7f9db9}
+.ph{background:linear-gradient(#e6eefb,#b8cdea);padding:3px 6px;font-weight:bold;border-bottom:1px solid #7f9db9}.ph i{float:right;font-style:normal;cursor:pointer}
+.pb{padding:4px;overflow:auto}#expl{top:106px}#expl .pb{height:26vh;background:#fff}#props{top:calc(106px + 26vh + 26px)}#props .pb{max-height:42vh}
+.ex{padding:1px 2px;cursor:pointer;white-space:nowrap}.ex:hover{background:#dbe8f8}.ex.sel{background:#316ac5;color:#fff}.ex.dim{color:#666;cursor:default}
+#props input[type=number]{width:46px;font-size:11px}
+#ddm{position:absolute;display:none;background:#f5f5f5;border:1px solid #888;box-shadow:2px 2px 4px rgba(0,0,0,.4);z-index:9;min-width:130px}#ddm div{padding:4px 14px;cursor:pointer}#ddm div:hover{background:#316ac5;color:#fff}
+#zm{position:absolute;right:min(222px,48vw);bottom:12px;display:flex;flex-direction:column;gap:4px}#zm b{width:26px;height:26px;border-radius:50%;background:#ccc;border:2px solid #fff;text-align:center;line-height:22px;cursor:pointer}
+#hlp{position:absolute;left:50%;top:30%;transform:translateX(-50%);width:min(320px,80vw);background:#ece9d8;border:2px solid #316ac5;padding:10px;display:none;line-height:1.6}
+#pl2{position:absolute;right:10px;top:52px;min-width:130px;background:rgba(150,150,150,.55);padding:4px 8px;font:15px 'Comic Sans MS',cursive;color:#fff;text-shadow:1px 1px #345}#pl2 #pl2l div{color:#6ab0ff}
+#vh{position:absolute;right:20px;top:38%;width:8px;height:100px;background:rgba(0,0,0,.35);display:flex;align-items:flex-end}#vhb{width:100%;background:#8c2;height:100%}#vhl{position:absolute;right:6px;top:calc(38% + 106px);font:13px 'Comic Sans MS',cursive;color:#3a7bd5;text-shadow:1px 1px #fff}
+#dev{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center}#dev .box{background:#ece9d8;border:3px solid #316ac5;border-radius:8px;padding:18px;text-align:center;color:#000;width:min(320px,86vw)}#dev .btn{font-size:18px;padding:16px}
+</style></head><body>
+<div id="menu"><div id="pg">
+<div id="hdr"><div id="lg"><a onclick="show('s-main')">Login</a>
+<div class="mf" style="left:26px;background:linear-gradient(#f5cd30 0 28%,#e0a020 28% 100%)"></div>
+<div class="mf" style="left:150px;width:26px;background:linear-gradient(#333 0 8%,#f5cd30 8% 28%,#111 28% 100%)"></div></div>
+<div id="bn"><span id="blogo">BLOKLAND</span><span id="tc">Think.<br><b>Create.</b></span><button id="pn" onclick="show('s-maps')">PLAY NOW</button></div></div>
+<div id="nav"><a onclick="show('s-char')">My BLOKLAND</a>|<a onclick="show('s-maps')">Games</a>|<a onclick="show('s-char')">Catalog</a>|<a onclick="show('s-people')">People</a>|<a onclick="show('s-studio')">Builders Club</a>|<a onclick="show('s-help')">Forum</a>|<a onclick="show('s-main')">News</a>|<a onclick="show('s-help')">Parents</a>|<a onclick="show('s-help')">Help</a></div>
+<div id="cols"><div id="side">
+<div id="lb"><div class="t">Member Login</div><div style="padding:2px 0 8px"><div id="lin" style="display:none;padding:6px 8px;font-size:12px"><b id="who"></b><br>Tix: <span id="mt">0</span><div style="margin-top:8px"><button onclick="logout()">Log out</button></div></div><div id="lout"><label>Character Name</label><input type="text" id="nick" maxlength="16" onchange="setName()"><label>Password</label><input type="password" id="pw" maxlength="40"><div style="text-align:center;margin:8px 0 2px"><button onclick="register()">Register</button> <button onclick="login()">Login</button></div><div id="amsg" style="font-size:11px;font-weight:bold;color:#a00;text-align:center;margin-top:4px"></div><div style="font-size:10px;text-align:center;margin-top:4px"><a style="color:#00c;cursor:pointer;text-decoration:underline" onclick="resetPw()">Forgot password?</a></div><div id="dbs" style="font-size:10px;color:#666;text-align:center;margin-top:3px;padding:0 4px">Account system: checking…</div><div id="accs" style="font-size:11px;text-align:center;margin-top:6px"></div></div><div id="net">Connecting…</div></div></div>
+<div class="fig" style="width:80px;height:130px;margin:40px 0 20px 10px"><div style="left:24px;top:0;width:32px;height:26px;background:#f5cd30"></div><div style="left:22px;top:0;width:36px;height:8px;background:#f5c518"></div><div style="left:20px;top:26px;width:40px;height:40px;background:#f08a1c"></div><div style="left:6px;top:26px;width:14px;height:40px;background:#111"></div><div style="left:60px;top:26px;width:14px;height:40px;background:#111"></div><div style="left:20px;top:66px;width:20px;height:40px;background:#111"></div><div style="left:40px;top:66px;width:20px;height:40px;background:#111"></div></div>
+<button class="btn g" id="b-resume" style="display:none;width:100%">▶ Return to Game</button></div>
+<div id="main">
+<div class="scr on" id="s-main"><h1>BLOKLAND Virtual Playworld</h1><h2>BLOKLAND is Free!</h2>
+<div class="hm"><div class="ft">
+<div class="row"><i class="ic">🛠</i><div><b>Build your personal Place</b><br><span>Create buildings, vehicles, scenery, and traps with thousands of virtual bricks.</span></div></div>
+<div class="row"><i class="ic">👥</i><div><b>Meet new friends online</b><br><span>Visit your friend’s place, chat in 3D, and build together.</span></div></div>
+<div class="row"><i class="ic">💣</i><div><b>Battle in the Brick Arenas</b><br><span>Play with the slingshot, rocket, or other brick battle tools. Be careful not to get “bloxxed”.</span></div></div>
+<div id="kid"><div class="bd">Kid Safe</div><b>Parents Click Here</b></div></div>
+<div class="vid"><div class="scene"><div class="bt">BUILD IT...</div><div class="brick"></div><div class="ctl">▶ &nbsp;▬▬▬▬▬▬▬▬▬▬▬▬▬ &nbsp;🔊</div></div>
+<div class="wy">Works in your browser!</div><button id="fdp" onclick="show('s-maps')">FREE - Download and Play!</button></div></div></div>
+<div class="scr" id="s-maps"><h3>Choose a Place</h3><p>Everyone on the same Place can see each other and chat — online!</p>
+<button class="btn g" onclick="startGame('obby')">🏁 Brick Obby EXTREME (Online)</button><button class="btn" onclick="startGame('crossroads')">💥 Crossroads — Brick Battle (Online)</button><button class="btn" onclick="startGame('stair')">🌈 Stairway to Heaven (Online)</button><h2 style="margin:14px 0 4px">Community Places</h2><div id="pl"></div><br><button class="btn r" onclick="show('s-main')">← Back</button></div>
+<div class="scr" id="s-studio"><h3>Builders Club — Studio</h3><p>Build your own Place in the classic 2008 Studio: Insert a Block, click it to select it, then use the Move, Resize and Rotate tools (or the Properties panel) — then Publish it and everyone online can play it from the Games page. You get one Place per account — publishing again replaces it. (Register &amp; log in first.)</p><p id="stmsg" style="color:#a00;font-weight:bold"></p><button class="btn g" onclick="openStudio()">🔨 Open Studio</button><button class="btn" onclick="show('s-maps')">🎮 Browse Places</button><br><button class="btn r" onclick="show('s-main')">← Back</button></div>
+<div class="scr" id="s-people"><h3>People Online</h3><div id="plist">Nobody here yet.</div><br><button class="btn r" onclick="show('s-main')">← Back</button></div>
+<div class="scr" id="s-char"><h3>My Character</h3>
+<div class="fig"><div id="f-h" style="left:24px;top:0;width:32px;height:26px"></div><div id="f-t" style="left:20px;top:26px;width:40px;height:40px"></div><div id="f-a1" style="left:6px;top:26px;width:14px;height:40px"></div><div id="f-a2" style="left:60px;top:26px;width:14px;height:40px"></div><div id="f-l1" style="left:20px;top:66px;width:20px;height:40px"></div><div id="f-l2" style="left:40px;top:66px;width:20px;height:40px"></div></div>
+<small>Head / Arms</small><div class="sw" id="c-h"></div><small>Torso</small><div class="sw" id="c-t"></div><small>Legs</small><div class="sw" id="c-l"></div><button class="btn r" onclick="show('s-main')">← Back</button></div>
+<div class="scr" id="s-set"><h3>Settings</h3><p>Camera sensitivity<br><input type="range" id="sens" min="2" max="14" value="6" style="width:100%"></p><p><label><input type="checkbox" id="sfx" checked> Sound effects</label></p><p>Controls: <button class="btn" id="devb" onclick="toggleDev()" style="display:inline-block;width:auto">Not chosen yet</button></p><button class="btn r" onclick="show('s-main')">← Back</button></div>
+<div class="scr" id="s-help"><h3>How to Play</h3><ul style="padding-left:18px;margin:4px 0"><li><b>W A S D</b> / arrows: walk &nbsp; <b>Space</b>: jump</li><li><b>Drag mouse</b>: camera, <b>wheel</b>: zoom</li><li><b>Enter</b>: chat, <b>Esc</b>: menu</li><li>Players in the same Place see each other live (you both need the page open at the same time).</li><li>Builders Club: build in the Studio (left click = place, right click = delete), then Publish.</li><li><b>Crossroads</b>: click/tap or press <b>F</b> to fire the slingshot. 3 hits and you get “bloxxed”!</li><li><b>Stairway to Heaven</b>: climb the spiral, lava floor = back to your last green checkpoint.</li><li>Avoid the red lava, collect Tix, finish the obby!</li></ul><button class="btn" onclick="show('s-set')">⚙ Settings</button><button class="btn r" onclick="show('s-main')">← Back</button></div>
+</div></div>
+<div id="cool"><div class="l"><b>Cool Places</b>Come check out some of Builderman’s favorite BLOKLAND places!</div>
+<div class="th" style="background:linear-gradient(#7ac0f0 55%,#e8b820 55%)" onclick="startGame('obby')">Brick Obby EXTREME</div>
+
+<div class="th" style="background:linear-gradient(#6aa8d8 55%,#7f8c8d 55%)" onclick="startGame('crossroads')">Crossroads</div>
+<div class="th" style="background:linear-gradient(#ce93d8,#4fc3f7)" onclick="startGame('stair')">Stairway</div><div class="th c">Currently Under Construction<br>Fixing, Updating, and Upgrading</div></div>
+<div id="foot">BLOKLAND, “Online Building Toy”, characters, logos, names, and all related indicia are fan-made parody, ©2009. Patents pending.<br>BLOKLAND Corp. is not affiliated with Lego, MegaBloks, Bionicle, Pokemon, Nintendo, Lincoln Logs, Yu Gi Oh, K’nex, Tinkertoys, Erector Set, or the Pirates of the Caribbean. ARrrr!<br>Use of this site signifies your acceptance of the <u>Terms and Conditions</u><br><u>Privacy Policy</u> | <u>Contact Us</u> | <u>About Us</u> | <u>Jobs</u></div>
+</div></div>
+<div id="dev"><div class="box"><h3 style="margin:0 0 6px;font-family:'Comic Sans MS',cursive">What are you playing on?</h3><p style="margin:0 0 10px;font-size:12px">Mobile shows on-screen controls. / Mobilde ekran tuşları gelir.</p><button class="btn g" id="d_m">📱 Mobile — Mobil</button><button class="btn" id="d_pc">💻 PC — Bilgisayar</button></div></div>
+<div id="hud">
+ <div class="top">Tix: <span id="tix">0</span> &nbsp;● Online: <span id="onc">1</span> &nbsp;💥 <span id="kl">0</span><div class="hp"><div id="hpb"></div></div></div>
+ <div id="top2"><button class="btn r" id="b-menu">☰ Menü</button></div>
+ <div id="toast"></div>
+ <div id="chat"><div id="log"></div><input id="ci" placeholder="Sohbet etmek için Enter’a bas…" maxlength="80"></div>
+ 
+ <div id="pl2"><div>Player List</div><div id="pl2l"></div></div><div id="vh"><div id="vhb"></div></div><div id="vhl">Health</div>
+<div id="st">
+<div id="sttitle"><span id="ttl">BLOKLAND - [Place1]</span><i id="xs">✕</i></div>
+<div id="stmenu"></div>
+<div id="sttb"><button class="ib" id="b_new" title="New">📄</button><button class="ib" id="bp" title="Publish Place">🌐</button><span class="sp"></span>
+<button class="ib on" id="t_sel" title="Select">🖱</button><button class="ib" id="t_move" title="Move">✥</button><button class="ib" id="t_size" title="Resize">⤢</button><button class="ib" id="t_rot" title="Rotate">⟳</button><span class="sp"></span>
+<button class="ib" id="i_box" title="Insert Block">▢</button><button class="ib" id="i_cyl" title="Insert Cylinder">⬤</button><button class="ib" id="i_lava" title="Insert Lava">🔥</button><span class="sp"></span>
+<button class="ib" id="pdup" title="Copy">⧉</button><button class="ib" id="pdel" title="Delete">🗑</button><span class="sp"></span>
+<input id="pname" maxlength="16" placeholder="Place name" style="width:100px;font-size:11px;flex:none"></div>
+<div id="stsub"></div>
+<div class="pn" id="expl"><div class="ph">Explorer <i onclick="tg('expl')">✕</i></div><div class="pb" id="exl"></div></div>
+<div class="pn" id="props"><div class="ph">Properties <i onclick="tg('props')">✕</i></div><div class="pb"><div id="pnone">Select a brick to edit it.</div><div id="pfields" style="display:none">
+<div class="pr"><span>Pos</span><input type="number" id="p_x" step="1"><input type="number" id="p_y" step="1"><input type="number" id="p_z" step="1"></div>
+<div class="pr"><span>Size</span><input type="number" id="p_w" step="1"><input type="number" id="p_h" step="1"><input type="number" id="p_d" step="1"></div>
+<div class="pr"><span>Rot°</span><input type="number" id="p_r" step="15"><button class="sb" id="rl">↺</button><button class="sb" id="rr">↻</button></div>
+<div class="sw" id="pc"></div><button class="sb" id="pl">🔥 Lava: off</button></div></div></div>
+<div id="zm"><b id="zi">＋</b><b id="zo">－</b></div>
+<div id="ddm"></div>
+<div id="hlp"><b>How to build</b><br>1. <b>Insert</b> menu (or ▢ ⬤ 🔥 buttons) puts a new brick in front of you.<br>2. Click a brick (or its name in Explorer) to select it.<br>3. Pick <b>Move</b>, <b>Resize</b> or <b>Rotate</b> and press the buttons under the toolbar.<br>4. Walk with W A S D, drag to look around.<br>5. Type a Place name and press 🌐 to publish.<br><button class="sb" onclick="$('hlp').style.display='none'" style="margin-top:6px">OK</button></div>
+</div>
+<div id="pad">
+<span data-k="w" style="left:62px;bottom:116px">▲</span><span data-k="a" style="left:14px;bottom:68px">◀</span><span data-k="s" style="left:62px;bottom:20px">▼</span><span data-k="d" style="left:110px;bottom:68px">▶</span>
+<span data-k=" " style="right:20px;bottom:30px;width:68px;height:68px;line-height:68px;font-size:26px;background:rgba(80,200,80,.5)">⤒</span><span id="fb" style="right:28px;bottom:118px;width:56px;height:56px;line-height:56px;background:rgba(200,50,50,.55)">🎯</span>
+</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const COL=['#f5cd30','#0d69ac','#a4bd47','#c4281c','#da8541','#f2f3f3','#1b2a35','#6d3b9e','#e1a4c2','#2ecc71','#00b2ff','#775c3d'];
+const cc={h:'#f5cd30',t:'#0d69ac',l:'#a4bd47'};
+let PR=[],kills=0,cd=0,GB=null,CP=null,CPb=null,FIN=null,ACC=null,DB=null,UID=null,svT=0,LB=null,GR=null,curMap="obby",RP={},peersLB=[],ns=0,started=false,build=false,playing=false,sfx=true,tix=0,hp=100,yaw=0,pitch=.35,dist=18,T=0,won=false,bcol='#c4281c',bsz=[4,1.2,2];
+function show(id){document.querySelectorAll('.scr').forEach(e=>e.classList.toggle('on',e.id===id));if(id==='s-maps')loadList()}
+// ---------- three.js ----------
+const R=new THREE.WebGLRenderer({antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));document.body.prepend(R.domElement);
+const S=new THREE.Scene();S.background=new THREE.Color(0x8ec9f0);S.fog=new THREE.Fog(0x8ec9f0,90,320);
+const C=new THREE.PerspectiveCamera(70,1,.1,600);
+function rs(){R.setSize(innerWidth,innerHeight);C.aspect=innerWidth/innerHeight;C.updateProjectionMatrix()}addEventListener('resize',rs);rs();
+S.add(new THREE.HemisphereLight(0xffffff,0x667788,.95));const sun=new THREE.DirectionalLight(0xffffff,.6);sun.position.set(30,60,20);S.add(sun);
+function studTex(){const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');x.fillStyle='#4f9a35';x.fillRect(0,0,64,64);x.fillStyle='#63b445';x.beginPath();x.arc(32,32,17,0,7);x.fill();x.strokeStyle='#357a22';x.lineWidth=3;x.stroke();const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(50,50);return t}
+const side=new THREE.MeshLambertMaterial({color:0x3b7d2c});
+const base=new THREE.Mesh(new THREE.BoxGeometry(200,1,200),[side,side,new THREE.MeshLambertMaterial({map:studTex()}),side,side,side]);base.position.y=-.5;base.userData.size=[200,1,200];S.add(base);
+// clouds
+for(let i=0;i<14;i++){const c=new THREE.Mesh(new THREE.BoxGeometry(14+Math.random()*16,3,8+Math.random()*8),new THREE.MeshBasicMaterial({color:0xffffff}));c.position.set((Math.random()-.5)*400,70+Math.random()*30,(Math.random()-.5)*400);S.add(c)}
+// ---------- world ----------
+let BR=[],MS=[],COINS=[];
+function addBrick(x,y,z,w,h,d,col,o={}){const b={x,y,z,w,h,d,r:o.r||0,col,lava:!!o.lava,cp:!!o.cp,user:!!o.user,shape:o.shape||'box',fall:!!o.fall,mv:o.mv||null,sp:o.spin||0,ox:x,oz:z};mkMesh(b);BR.push(b);return b}
+function mkMesh(b){if(b.m){S.remove(b.m);MS=MS.filter(q=>q!==b.m);b.m.geometry.dispose()}
+ const g=b.shape==='cyl'?new THREE.CylinderGeometry(b.w/2,b.w/2,b.h,24):new THREE.BoxGeometry(b.w,b.h,b.d),m=new THREE.Mesh(g,new THREE.MeshLambertMaterial({color:b.lava?'#ff2a00':b.col}));
+ m.add(new THREE.LineSegments(new THREE.EdgesGeometry(g),new THREE.LineBasicMaterial({color:0,transparent:true,opacity:.45})));
+ m.position.set(b.x,b.y+b.h/2,b.z);m.rotation.y=b.r*Math.PI/180;m.userData.b=b;S.add(m);MS.push(m);b.m=m;
+ const t=b.r*Math.PI/180,cs=Math.abs(Math.cos(t)),sn=Math.abs(Math.sin(t)),ex=b.shape==='cyl'?b.w/2:cs*b.w/2+sn*b.d/2,ez=b.shape==='cyl'?b.w/2:sn*b.w/2+cs*b.d/2;
+ b.x0=b.x-ex;b.x1=b.x+ex;b.z0=b.z-ez;b.z1=b.z+ez;b.y0=b.y;b.y1=b.y+b.h;if(b===SEL)m.material.emissive.set(0x555500)}
+function ovl(b,x,z){if(b.shape==='cyl'){const dx=x-b.x,dz=z-b.z,R=b.w/2+1;return dx*dx+dz*dz<R*R}
+ if(b.r%90===0)return x+1>b.x0&&x-1<b.x1&&z+1>b.z0&&z-1<b.z1;
+ const t=b.r*Math.PI/180,c=Math.cos(t),sn=Math.sin(t),dx=x-b.x,dz=z-b.z,lx=dx*c-dz*sn,lz=dx*sn+dz*c,ax=Math.max(Math.abs(lx)-b.w/2,0),az=Math.max(Math.abs(lz)-b.d/2,0);return ax*ax+az*az<1}
+function addCoin(x,y,z){const m=new THREE.Mesh(new THREE.CylinderGeometry(1,1,.3,16),new THREE.MeshLambertMaterial({color:0xffcc00,emissive:0x553300}));m.rotation.x=Math.PI/2;const g=new THREE.Group();g.add(m);g.position.set(x,y,z);S.add(g);COINS.push(g)}
+function clearWorld(){BR.forEach(b=>S.remove(b.m));COINS.forEach(c=>S.remove(c));BR=[];MS=[];COINS=[];CP=null;CPb=null;FIN=null;PR.forEach(b=>S.remove(b.m));PR=[]}
+function loadMap(n){clearWorld();won=false;if(n==='crossroads'){loadCross();return}if(n==='stair'){loadStair();return}
+ if(n==='obby'){
+  addBrick(0,0,-16,12,1,10,'#2ecc71');
+  const L=[[0,.5,-29,3,3,'#e74c3c'],[4,1,-40,2.5,2.5,'#f1c40f'],[-3,1.5,-51,2.5,2.5,'#2ecc71'],[3,2,-62,2,2,'#3498db'],[-4,2.5,-73,2,2,'#9b59b6'],[0,3,-85,6,6,'#00c853',1],
+   [0,5,-134,3,3,'#ff9800',2],[5,5.5,-143,2.5,2.5,'#ff9800',2],[-1,6,-152,2.5,2.5,'#ff9800',2],[4,6.5,-161,2.5,2.5,'#ff9800',2],[0,7,-172,6,6,'#00c853',1],
+   [0,7.5,-186,10,10,'#34495e'],[3,8,-198,2,2,'#e74c3c'],[-3,8.5,-208,2,2,'#f1c40f'],[3,9,-218,2,2,'#2ecc71'],[-3,9.5,-228,2,2,'#3498db'],[0,10,-242,12,12,'#34495e']];
+  addBrick(0,0,-61,44,.3,78,'#ff2a00',{lava:true});
+  L.forEach((q,i)=>{addBrick(q[0],q[1],q[2],q[3],1,q[4],q[5],{cp:q[6]==1,fall:q[6]==2});if(i%2==0)addCoin(q[0],q[1]+3.2,q[2])});
+  [[0,3.5,-97,4,7,1.1,0],[0,4,-110,3.5,8,1.3,2],[0,4.5,-123,3,9,1.5,4]].forEach(q=>addBrick(q[0],q[1],q[2],q[3],1,q[3],'#e91e63',{mv:{a:q[4],s:q[5],p:q[6]}}));
+  addBrick(0,9,-186,13,1.2,1.5,'#ff2a00',{lava:true,spin:75});addBrick(0,11.4,-242,14,1.2,1.5,'#ff2a00',{lava:true,spin:-60});addBrick(0,11.4,-242,14,1.2,1.5,'#ff2a00',{lava:true,spin:95});
+  addBrick(0,10.5,-258,8,1,8,'#ffd700');addBrick(0,11.5,-258,1.5,5,1.5,'#ffffff');FIN=[0,-258,11.5];
+  addBrick(-30,0,10,10,14,10,'#8e44ad');addBrick(30,0,10,6,6,6,'#16a085');addBrick(22,0,-6,3,3,3,'#d35400');addBrick(26,0,-6,3,6,3,'#c0392b');
+  for(let i=0;i<4;i++)addBrick(-30,i*3.5,-5+ -i*0,3,2,3,'#f39c12'),0;
+  [[-20,1,12],[20,1,12],[0,1,22],[-12,1,-8],[12,1,-8]].forEach(p=>addCoin(...p));
+ }
+}
+// ---------- characters ----------
+function faceTex(hc){const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');x.fillStyle=hc||cc.h;x.fillRect(0,0,64,64);x.fillStyle='#000';x.fillRect(19,18,6,12);x.fillRect(39,18,6,12);x.lineWidth=4;x.strokeStyle='#000';x.beginPath();x.arc(32,32,15,.25*Math.PI,.75*Math.PI);x.stroke();return new THREE.CanvasTexture(c)}
+function tag(t){const c=document.createElement('canvas');c.width=256;c.height=64;const x=c.getContext('2d');x.font='bold 30px Verdana';x.textAlign='center';x.lineWidth=6;x.strokeStyle='#000';x.strokeText(t,128,42);x.fillStyle='#fff';x.fillText(t,128,42);const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthTest:false}));s.scale.set(8,2,1);s.position.y=7.4;return s}
+function mkChar(col,name){const g=new THREE.Group(),M=c=>new THREE.MeshLambertMaterial({color:c});
+ const bx=(w,h,d,m,x,y,z,p)=>{const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);b.position.set(x,y,z);b.add(new THREE.LineSegments(new THREE.EdgesGeometry(b.geometry),new THREE.LineBasicMaterial({color:0,transparent:true,opacity:.4})));(p||g).add(b);return b};
+ const pv=(x,y)=>{const p=new THREE.Group();p.position.set(x,y,0);g.add(p);return p};
+ g.mt=M(col.t);g.mh=M(col.h);g.ml=M(col.l);
+ bx(2,2,1,g.mt,0,3,0);const fm=new THREE.MeshLambertMaterial({map:faceTex()});g.fm=fm;bx(1.6,1.2,1.6,[g.mh,g.mh,g.mh,g.mh,fm,g.mh],0,4.6,0);
+ g.al=pv(-1.5,4);g.ar=pv(1.5,4);g.ll=pv(-.5,2);g.lr=pv(.5,2);
+ bx(1,2,1,g.mh,0,-1,0,g.al);bx(1,2,1,g.mh,0,-1,0,g.ar);bx(1,2,1,g.ml,0,-1,0,g.ll);bx(1,2,1,g.ml,0,-1,0,g.lr);
+ g.tgs=tag(name);g.add(g.tgs);S.add(g);return g}
+const me=mkChar(cc,'Sen');
+function recolor(){ACC&&saveSoon();GR&&GR.presence({c:{h:cc.h,t:cc.t,l:cc.l}});me.mt.color.set(cc.t);me.mh.color.set(cc.h);me.ml.color.set(cc.l);me.fm.map=faceTex();me.fm.needsUpdate=true;
+ ['h','t','l'].forEach(k=>{});$('f-h').style.background=cc.h;$('f-a1').style.background=$('f-a2').style.background=cc.h;$('f-t').style.background=cc.t;$('f-l1').style.background=$('f-l2').style.background=cc.l}
+['h','t','l'].forEach(k=>{COL.forEach(c=>{const b=document.createElement('b');b.style.background=c;b.onclick=()=>{cc[k]=c;recolor()};$('c-'+k).appendChild(b)})});recolor();
+// ---------- input ----------
+const K={};addEventListener('keydown',e=>{const ae=document.activeElement;if(ae&&ae.tagName==='INPUT'&&ae.id!=='ci')return;if(document.activeElement===$('ci')){if(e.key==='Enter'){sendChat($('ci').value);$('ci').value='';$('ci').blur()}if(e.key==='Escape')$('ci').blur();return}
+ if(e.key==='Enter'&&playing){if(!ACC)toast('Chat: Log in or Register first');$('ci').focus();e.preventDefault();return}
+ const k=e.key.length===1?e.key.toLowerCase():e.key;K[k]=1;if(k==='f')shoot(0,0);if(k==='Escape'&&playing)openMenu();if(k===' ')e.preventDefault()});
+addEventListener('keyup',e=>{K[e.key.length===1?e.key.toLowerCase():e.key]=0});
+document.querySelectorAll('#pad span').forEach(s=>{const k=s.dataset.k;s.addEventListener('pointerdown',e=>{K[k]=1;e.stopPropagation()});['pointerup','pointerleave'].forEach(v=>s.addEventListener(v,()=>K[k]=0))});
+
+let pd=null;const cv=R.domElement;cv.oncontextmenu=e=>e.preventDefault();
+cv.addEventListener('pointerdown',e=>{pd={x:e.clientX,y:e.clientY,m:0,b:e.button}});
+cv.addEventListener('pointermove',e=>{if(!pd||!playing)return;const dx=e.clientX-pd.x,dy=e.clientY-pd.y;pd.x=e.clientX;pd.y=e.clientY;pd.m+=Math.abs(dx)+Math.abs(dy);const s=$('sens').value/1000;yaw-=dx*s;pitch=Math.max(-.2,Math.min(1.4,pitch+dy*s))});
+cv.addEventListener('pointerup',e=>{if(pd&&pd.m<6&&playing){if(build)clickBuild(e,pd.b);else if(curMap==='crossroads'&&pd.b===0)shoot(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1)}pd=null});
+cv.addEventListener('wheel',e=>{dist=Math.max(6,Math.min(45,dist+e.deltaY*.02))});
+// ---------- sound / ui ----------
+let AC;function tone(a,b,d,t='square'){if(!$('sfx').checked)return;try{AC=AC||new AudioContext();const o=AC.createOscillator(),g=AC.createGain(),n=AC.currentTime;o.type=t;o.frequency.setValueAtTime(a,n);o.frequency.exponentialRampToValueAtTime(b,n+d);g.gain.setValueAtTime(.07,n);g.gain.exponentialRampToValueAtTime(.001,n+d);o.connect(g);g.connect(AC.destination);o.start();o.stop(n+d)}catch(e){}}
+function toast(t){const e=$('toast');e.textContent=t;e.style.opacity=1;clearTimeout(e.t);e.t=setTimeout(()=>e.style.opacity=0,2200)}
+// ---------- game flow ----------
+const P={x:0,y:0,z:0,vy:0,ry:0,g:true};let swing=0;
+function respawn(){const c=CP||(curMap==='crossroads'?SPS[Math.random()*SPS.length|0]:[0,.5,0]);P.x=c[0];P.y=c[1];P.z=c[2];P.vy=0;hp=100}
+function die(){tone(300,70,.4,'sawtooth');toast('OOF!');respawn()}
+function startGame(map,b,data){if(map==='studio'&&!ACC){studioLock();return}if(!DEV){askDev(()=>startGame(map,b,data));return}kills=0;$('kl').textContent=0;setName();joinRoom(map);build=map==='studio';select(null);setTool('sel');if(data)loadPlace(data);else loadMap(map);if(build){toast('STUDIO');renderEx();$('hud').classList.add('studio');$('pname').oninput()}else $('hud').classList.remove('studio');if(map==='crossroads')toast('CLICK / F: sapan 🎯');if(map==='stair')toast('🌈 Yukarı çık!');respawn();yaw=0;pitch=.35;if(!ACC)tix=0;$('tix').textContent=tix;started=true;openGame();}
+function studioLock(){$('stmsg').textContent='🔒 Log in or register (left box) to build and publish your own Place.';show('s-studio');$('menu').style.display='block'}
+function openGame(){if(build&&!ACC){studioLock();return}LB&&LB.presence({map:curMap});$('menu').style.display='none';$('hud').style.display='block';playing=true}
+function openMenu(){playing=false;LB&&LB.presence({map:'menu'});$('menu').style.display='block';$('hud').style.display='none';$('b-resume').style.display='block';show('s-main')}
+$('b-resume').onclick=openGame;$('b-menu').onclick=openMenu;
+function hit(x,y,z){for(const b of BR)if(!b.off&&y+5>b.y0&&y<b.y1&&x+1>b.x0&&x-1<b.x1&&z+1>b.z0&&z-1<b.z1&&ovl(b,x,z))return b;return null}
+function movers(dt){for(const b of BR){
+ if(b.mv){const m=b.mv,nx=b.ox+m.a*Math.sin(T*m.s+m.p),dx=nx-b.x;if(P.g&&GB===b)P.x+=dx;b.x=nx;b.x0+=dx;b.x1+=dx;b.m.position.x=nx}
+ if(b.sp){b.r=(b.r+b.sp*dt)%360;b.m.rotation.y=b.r*Math.PI/180;const t=b.r*Math.PI/180,cs=Math.abs(Math.cos(t)),sn=Math.abs(Math.sin(t)),ex=cs*b.w/2+sn*b.d/2,ez=sn*b.w/2+cs*b.d/2;b.x0=b.x-ex;b.x1=b.x+ex;b.z0=b.z-ez;b.z1=b.z+ez}
+ if(b.fall){if(b.off){if(T>b.back){b.off=false;b.m.visible=true}}else if(GB===b&&P.g){b.tm=(b.tm||0)+dt;if(b.tm>.6){b.off=true;b.back=T+3;b.m.visible=false;b.tm=0}}else b.tm=0}}}
+function step(dt){movers(dt);
+ let f=(K.w||K.ArrowUp?1:0)-(K.s||K.ArrowDown?1:0),r=(K.d||K.ArrowRight?1:0)-(K.a||K.ArrowLeft?1:0);
+ const fx=-Math.sin(yaw),fz=-Math.cos(yaw);let dx=fx*f-fz*r,dz=fz*f+fx*r;const l=Math.hypot(dx,dz),mv=l>0;
+ if(mv){dx/=l;dz/=l;let d=Math.atan2(dx,dz)-P.ry;d=Math.atan2(Math.sin(d),Math.cos(d));P.ry+=d*Math.min(1,dt*14)}
+ const sp=16*dt,nx=P.x+dx*sp;if(!hit(nx,P.y,P.z))P.x=nx;else if(P.g&&!hit(nx,P.y+.7,P.z)){P.x=nx;P.y+=.7}const nz=P.z+dz*sp;if(!hit(P.x,P.y,nz))P.z=nz;else if(P.g&&!hit(P.x,P.y+.7,nz)){P.z=nz;P.y+=.7}
+ if(K[' ']&&P.g){P.vy=40;P.g=false;tone(300,650,.12)}
+ P.vy-=110*dt;let ny=P.y+P.vy*dt;const wasG=P.g;P.g=false;GB=null;
+ const b=hit(P.x,ny,P.z);if(b){if(P.vy<0){ny=b.y1;P.g=true;GB=b;if(b.cp&&b!==CPb){CPb=b;CP=[(b.x0+b.x1)/2,b.y1+.5,(b.z0+b.z1)/2];toast('✔ Checkpoint!');tone(700,1100,.15,'sine')}}else ny=b.y0-5;P.vy=0}
+ if(Math.abs(P.x)<100&&Math.abs(P.z)<100&&ny<=0&&P.y>=-.01){ny=0;P.vy=0;P.g=true}
+ P.y=ny;if(P.y<-30)die();
+ for(const b of BR)if(b.lava&&P.x+1>b.x0&&P.x-1<b.x1&&P.z+1>b.z0&&P.z-1<b.z1&&P.y<b.y1+.3&&P.y+5>b.y0&&ovl(b,P.x,P.z)){die();break}
+ hp=Math.min(100,hp+(curMap==='crossroads'?1.5:4)*dt);$('hpb').style.width=hp+'%';$('vhb').style.height=hp+'%';
+ for(let i=COINS.length-1;i>=0;i--){const c=COINS[i];if(Math.hypot(c.position.x-P.x,c.position.z-P.z)<2.5&&Math.abs(c.position.y-P.y-2.5)<4){S.remove(c);COINS.splice(i,1);tix++;$('tix').textContent=tix;saveSoon();tone(900,1600,.15,'sine')}}
+ if(!won&&FIN&&P.g&&Math.abs(P.x-FIN[0])<6&&Math.abs(P.z-FIN[1])<6&&P.y>=FIN[2]-.2){won=true;tix+=500;$('tix').textContent=tix;saveSoon();toast('🏆 PARKURU BİTİRDİN! +500 Tix');tone(500,1400,.5,'sine')}
+ const s=mv&&P.g?Math.sin(T*12)*.9:0;swing+=(s-swing)*.4;
+ me.position.set(P.x,P.y,P.z);me.rotation.y=P.ry;
+ me.ll.rotation.x=swing;me.lr.rotation.x=-swing;me.al.rotation.x=P.g?-swing:-2.7;me.ar.rotation.x=P.g?swing:-2.7;
+}
+
+// ---------- online (room) ----------
+function cl(x){return String(x==null?'':x).replace(/[^\p{L}\p{N}_ .\-]/gu,'').slice(0,16)}
+const GN='Guest'+(1000+Math.random()*9000|0);function myName(){return ACC?cl(ACC.name):GN}
+function say(n,t,mine){t=String(t||'').trim().slice(0,80);if(!t)return;const l=$('log'),d=document.createElement('div'),b=document.createElement('b');b.style.color=mine?'#7df':'#fd7';b.textContent=cl(n)+': ';d.appendChild(b);d.appendChild(document.createTextNode(t));l.appendChild(d);while(l.children.length>7)l.removeChild(l.firstChild)}
+function sendChat(t){t=String(t||'').trim().slice(0,80);if(!t)return;if(!ACC){toast('Log in or register to chat');return}say(myName(),t,1);GR&&GR.presence({msg:t,mid:Date.now()})}
+function setName(){const n=myName();me.remove(me.tgs);me.tgs=tag(n);me.add(me.tgs);LB&&LB.presence({name:n});GR&&GR.presence({name:n,m:ACC?1:0});renderPL()}
+$('nick').value='';$('ci').disabled=true;$('ci').placeholder='Log in to chat';setName();
+function renderPeople(){const e=$('plist');e.textContent='';peersLB.forEach(p=>{const q=p.presence||{},d=document.createElement('div');d.textContent=(cl(q.name)||'Guest')+(p.isMe&&p.sameTab?' (you)':'')+' — '+(q.map&&q.map!=='menu'?'playing '+cl(q.map):'in menu');e.appendChild(d)});if(!peersLB.length)e.textContent='Nobody here yet.'}
+(async()=>{try{const r=window.claude&&await claude.use('room');if(!r){$('net').textContent='Offline (open from claude.ai to play online)';return}
+ LB=r;LB.presence({name:myName(),map:'menu'});$('net').textContent='● Online: 1';
+ LB.onPeers(c=>{peersLB=c.peers.filter(p=>p.kind==='viewer');$('net').textContent='● Online: '+peersLB.length;renderPeople()})}catch(e){$('net').textContent='Offline'}})();
+function leaveRoom(){if(GR){GR.leave();GR=null}Object.values(RP).forEach(r=>S.remove(r.g));RP={};$('onc').textContent=1}
+async function joinRoom(map){leaveRoom();curMap=map;if(!LB||map==='studio')return;try{const g=await LB.join(map);GR=g;g.presence({name:myName(),m:ACC?1:0,c:{h:cc.h,t:cc.t,l:cc.l}});g.onPeers(c=>syncPeers(c.peers));LB.presence({map})}catch(e){GR=null}}
+function okc(v){return /^#[0-9a-f]{6}$/i.test(v)}
+function syncPeers(ps){const seen={};ps.forEach(p=>{if(p.isMe||p.kind!=='viewer')return;seen[p.peer]=1;const q=p.presence||{},nm=cl(q.name)||'Guest';let r=RP[p.peer];
+ if(!r){r={g:mkChar({h:'#f5cd30',t:'#0d69ac',l:'#a4bd47'},nm),mid:q.mid};r.g.position.set(+q.x||0,+q.y||0,+q.z||0);RP[p.peer]=r}
+ r.p=q;if(Array.isArray(q.sh)&&q.sh[0]!==r.sh){const f0=r.sh===undefined;r.sh=q.sh[0];const a=q.sh.map(Number);if(!f0&&curMap==='crossroads'&&a.every(isFinite))fire(a[1],a[2],a[3],a[4],a[5],a[6],false,nm)}
+ if(Array.isArray(q.dd)&&q.dd[0]!==r.dd){const f1=r.dd===undefined;r.dd=q.dd[0];if(!f1){say('☠',nm+' was bloxxed by '+cl(q.dd[1]));if(cl(q.dd[1])===myName()&&curMap==='crossroads'){kills++;tix+=10;$('tix').textContent=tix;$('kl').textContent=kills;saveSoon();toast('💥 You bloxxed '+nm+'! +10 Tix')}}}
+ const cs=JSON.stringify(q.c||'');if(cs!==r.cs){r.cs=cs;const c=q.c||{};if(okc(c.h)){r.g.mh.color.set(c.h);r.g.fm.map=faceTex(c.h);r.g.fm.needsUpdate=true}okc(c.t)&&r.g.mt.color.set(c.t);okc(c.l)&&r.g.ml.color.set(c.l)}
+ if(q.mid&&q.mid!==r.mid){r.mid=q.mid;if(q.m)say(nm,q.msg)}});
+ for(const k in RP)if(!seen[k]){S.remove(RP[k].g);delete RP[k]}
+ $('onc').textContent=Object.keys(RP).length+1;renderPL()}
+function remoteStep(dt){const t=Math.min(1,dt*12);for(const k in RP){const r=RP[k],q=r.p||{},g=r.g;g.position.x+=((+q.x||0)-g.position.x)*t;g.position.y+=((+q.y||0)-g.position.y)*t;g.position.z+=((+q.z||0)-g.position.z)*t;let d=(+q.ry||0)-g.rotation.y;d=Math.atan2(Math.sin(d),Math.cos(d));g.rotation.y+=d*t;const sw=+q.sw||0,air=q.g===false;g.ll.rotation.x=sw;g.lr.rotation.x=-sw;g.al.rotation.x=air?-2.7:-sw;g.ar.rotation.x=air?-2.7:sw}}
+function netSend(dt){ns+=dt;if(ns<.07||!GR)return;ns=0;GR.presence({x:+P.x.toFixed(2),y:+P.y.toFixed(2),z:+P.z.toFixed(2),ry:+P.ry.toFixed(2),sw:+swing.toFixed(2),g:P.g})}
+
+// ---------- account ----------
+function amsg(t){$('amsg').textContent=t}
+function appl(a){ACC=a;$('lin').style.display=a?'block':'none';$('lout').style.display=a?'none':'block';if(a){$('who').textContent=a.name;tix=a.tix|0;$('tix').textContent=tix;['h','t','l'].forEach(k=>a.c&&okc(a.c[k])&&(cc[k]=a.c[k]));recolor()}$('mt').textContent=tix;setName();$('ci').disabled=!a;$('ci').placeholder=a?'Press Enter to chat…':'Log in to chat';renderAccs()}
+let ACCS=[];
+const slug=n=>[...String(n).toLowerCase()].map(c=>/[a-z0-9]/.test(c)?c:'u'+c.charCodeAt(0).toString(16)).join('');
+const kOf=n=>'acc_'+slug(n);
+const aref=k=>DB.collection('data/users/'+UID).doc(k);
+async function listAccs(){try{const q=await DB.collection('data/users/'+UID).get();return q.docs.filter(x=>x.id==='profile'||x.id.startsWith('acc_')).map(x=>({k:x.id,d:x.data()})).filter(x=>x.d&&cl(x.d.name))}catch(e){return ACCS}}
+async function findAcc(n){const k=kOf(n),a=await aref(k).get();if(a.exists)return{k,d:a.data()};const l=await DB.doc('data/users/'+UID+'/profile').get();if(l.exists&&cl(l.data().name).toLowerCase()===n.toLowerCase())return{k:'profile',d:l.data()};return null}
+function renderAccs(){const e=$('accs');e.textContent='';if(ACC||!ACCS.length)return;e.appendChild(document.createTextNode('Your accounts: '));ACCS.forEach(x=>{const b=document.createElement('a');b.textContent=cl(x.d.name);b.style.cssText='color:#00c;cursor:pointer;text-decoration:underline;margin:0 4px';b.onclick=()=>{$('nick').value=cl(x.d.name);$('pw').focus()};e.appendChild(b)})}
+async function saveAcc(){if(!ACC||!DB)return;ACC={...ACC,tix,c:{h:cc.h,t:cc.t,l:cc.l}};const {k,...d}=ACC;try{await aref(k).set(d)}catch(e){}}
+function saveSoon(){clearTimeout(svT);svT=setTimeout(saveAcc,1500)}
+async function hashPw(pw,salt){if(window.crypto&&crypto.subtle){try{const k=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveBits']);const b=await crypto.subtle.deriveBits({name:'PBKDF2',salt:new TextEncoder().encode(salt),iterations:100000,hash:'SHA-256'},k,256);return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){}}
+ let h1=0xdeadbeef,h2=0x41c6ce57;const t=salt+'|'+pw;for(let i=0;i<t.length;i++){const c=t.charCodeAt(i);h1=Math.imul(h1^c,2654435761);h2=Math.imul(h2^c,1597334677)}h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);return 'f:'+(4294967296*(2097151&h2)+(h1>>>0)).toString(16)}
+const rid=()=>(window.crypto&&crypto.randomUUID)?crypto.randomUUID():Math.random().toString(36).slice(2)+Date.now().toString(36);
+const er=e=>String((e&&(e.code||e.message))||e);
+const mk=(a,k)=>({k,name:cl(a.name),tix:+a.tix||0,c:a.c||{},salt:a.salt||'',h:a.h||''});
+async function register(){if(!DB){amsg('Open from claude.ai and sign in to register');return}const n=cl($('nick').value.trim()),pw=$('pw').value;if(n.length<3){amsg('Name needs 3-16 characters');return}if(pw.length<4){amsg('Password needs 4+ characters');return}
+ try{const k=kOf(n);if(await findAcc(n)){amsg('You already have an account with that name — use Login or pick another name');return}
+ const salt=rid(),d={name:n,tix:0,c:{h:cc.h,t:cc.t,l:cc.l},salt,h:await hashPw(pw,salt)};await aref(k).set(d);ACCS=ACCS.filter(x=>x.k!==k).concat([{k,d}]);amsg('');$('pw').value='';appl(mk(d,k))}catch(e){amsg('Could not register: '+er(e))}}
+async function login(){if(!DB){amsg('Open from claude.ai and sign in to log in');return}const n=cl($('nick').value.trim()),pw=$('pw').value;if(!n){amsg('Type your Character Name');return}
+ try{const f=await findAcc(n);if(!f){amsg('No account named "'+n+'" — press Register to create it');renderAccs();return}
+ const a={...f.d};if(a.h){if(await hashPw(pw,a.salt)!==a.h){amsg('Wrong password');return}}else if(pw.length>=4){a.salt=rid();a.h=await hashPw(pw,a.salt);await aref(f.k).set(a)}
+ amsg('');$('pw').value='';appl(mk(a,f.k))}catch(e){amsg('Login failed: '+er(e))}}
+let rsf=0;
+async function resetPw(){if(!DB){amsg('Account system not ready (see status below)');return}const n=cl($('nick').value.trim());if(!n){amsg('Type the account name first');return}
+ if(!rsf){rsf=1;amsg('Press "Forgot password?" again to confirm');setTimeout(()=>rsf=0,6000);return}rsf=0;
+ try{const f=await findAcc(n);if(!f){amsg('No account with that name');return}await aref(f.k).set({...f.d,salt:'',h:''});amsg('Password cleared. Type a NEW password and press Login')}catch(e){amsg('Reset failed: '+er(e))}}
+function logout(){clearTimeout(svT);saveAcc();tix=0;$('tix').textContent=0;$('nick').value='';appl(null)}
+(async()=>{const st=t=>{$('dbs').textContent=t};try{if(!window.claude){st('Account system: not available here');return}const [d,u]=await Promise.all([claude.use('db'),claude.use('user')]);if(!d||!u){st('Account system: not granted (db/user unavailable)');return}const id=await u.id();if(!id){st('Account system: sign in to claude.ai first');return}DB=d;UID=id;st('Account system: ready');ACCS=await listAccs();renderAccs();if(ACCS.length===1){$('nick').value=cl(ACCS[0].d.name);amsg('Welcome back! Enter your password and press Login')}else if(ACCS.length>1)amsg('Tap your account below, then enter your password')}catch(e){st('Account system error: '+er(e))}})();
+
+// ---------- places (community games) ----------
+function nearSpawn(x,y,z,w,h,d){return x-w/2<3&&x+w/2>-3&&z-d/2<3&&z+d/2>-3&&y<6}
+let SEL=null,tool='sel';
+function fillPP(){const on=!!SEL&&build;$('pfields').style.display=on?'block':'none';$('pnone').style.display=on?'none':'block';if(!on)return;['x','y','z','w','h','d','r'].forEach(f=>$('p_'+f).value=+(+SEL[f]).toFixed(2));$('pl').textContent='🔥 Lava: '+(SEL.lava?'ON':'off');$('p_d').disabled=SEL.shape==='cyl'}
+function remesh(){mkMesh(SEL);fillPP()}
+['x','y','z','w','h','d','r'].forEach(f=>$('p_'+f).onchange=()=>{if(!SEL)return;let v=+$('p_'+f).value;if(!isFinite(v))v=0;if('whd'.includes(f))v=Math.min(60,Math.max(.5,v));else if(f==='y')v=Math.min(200,Math.max(-5,v));else if(f==='r')v=Math.round(v)%360;else v=Math.min(100,Math.max(-100,v));SEL[f]=v;if(SEL.shape==='cyl'&&(f==='w'||f==='d'))SEL.w=SEL.d=v;remesh()});
+function rot(a){if(!SEL)return;SEL.r=(SEL.r+a)%360;remesh()}
+$('rl').onclick=()=>rot(-15);$('rr').onclick=()=>rot(15);
+COL.forEach(c=>{const b=document.createElement('b');b.style.background=c;b.onclick=()=>{if(!SEL)return;SEL.col=c;SEL.lava=false;SEL.m.material.color.set(c);fillPP()};$('pc').appendChild(b)});
+$('pl').onclick=()=>{if(!SEL)return;SEL.lava=!SEL.lava;SEL.m.material.color.set(SEL.lava?'#ff2a00':SEL.col);fillPP()};
+$('pdup').onclick=()=>{if(!SEL||BR.length>=600)return;const o=SEL,b=addBrick(o.x+2,o.y,o.z+2,o.w,o.h,o.d,o.col,{user:true,shape:o.shape,r:o.r,lava:o.lava});select(b)};
+$('pdel').onclick=()=>{if(SEL)rmBrick(SEL)};
+function clickBuild(e,btn){const r=new THREE.Raycaster();r.setFromCamera(new THREE.Vector2(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1),C);const h=r.intersectObjects(MS)[0],hb=h&&h.object.userData.b;if(btn===2){if(hb)rmBrick(hb);return}select(hb||null)}
+function loadPlace(d){clearWorld();won=false;const cl2=(v,a,b)=>Math.min(b,Math.max(a,+v||0));
+ (Array.isArray(d.bricks)?d.bricks:[]).slice(0,600).forEach(a=>{if(!Array.isArray(a))return;const x=cl2(a[0],-100,100),y=cl2(a[1],-5,200),z=cl2(a[2],-100,100),w=cl2(a[3],.5,60),h=cl2(a[4],.5,60),dd=cl2(a[5],.5,60);
+  if(nearSpawn(x,y,z,w,h,dd))return;{const cy=a[9]==1;addBrick(x,y,z,w,h,cy?w:dd,/^[0-9a-f]{6}$/i.test(a[6])?'#'+a[6]:'#888888',{lava:a[7]==1,r:Math.round(cl2(a[8],-360,360)),shape:cy?'cyl':'box'})}})}
+async function openStudio(){if(!ACC){studioLock();return}let d=null;try{if(DB){const x=await DB.doc('places/'+UID).get();if(x.exists)d=x.data()}}catch(e){}if(d)$('pname').value=cl(d.name);startGame('studio',false,d)}
+async function publishPlace(){if(!DB||!ACC){toast('Register & log in first!');return}const nm=cl($('pname').value.trim());if(nm.length<2){toast('Give your Place a name');return}
+ if(BR.some(b=>nearSpawn(b.x,b.y,b.z,b.w,b.h,b.d))){toast('Move bricks away from the center spawn');return}
+ const f=v=>+(+v).toFixed(2),bricks=BR.map(b=>[f(b.x),f(b.y),f(b.z),f(b.w),f(b.h),f(b.d),String(b.col).replace('#',''),b.lava?1:0,Math.round(b.r)||0,b.shape==='cyl'?1:0]);
+ if(!bricks.length){toast('Build something first!');return}
+ try{await DB.doc('places/'+UID).set({name:nm,owner:myName(),bricks,t:Date.now()});toast('✔ Published! Everyone can play it online');tone(500,1400,.4,'sine')}catch(e){toast('Publish failed')}}
+async function loadList(){const e=$('pl');if(!DB){e.textContent='Sign in at claude.ai to see community places.';return}e.textContent='Loading…';
+ try{const q=await DB.collection('places').orderBy('t','desc').limit(20).get();e.textContent='';if(q.empty)e.textContent='No places yet — build the first one in Builders Club!';
+ q.docs.forEach(x=>{const d=x.data(),r=document.createElement('div');r.style.cssText='display:flex;gap:6px;align-items:center;padding:4px 0;border-bottom:1px solid #ccc';
+  const t=document.createElement('span');t.style.flex='1';t.textContent=cl(d.name)+' — by '+cl(d.owner);r.appendChild(t);
+  const pb=document.createElement('button');pb.className='btn g';pb.style.margin='0';pb.textContent='▶ Play';pb.onclick=()=>startGame('p'+String(x.id).toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,24),false,d);r.appendChild(pb);
+  if(x.id===UID){const xb=document.createElement('button');xb.className='btn r';xb.style.margin='0';xb.textContent='✕';xb.onclick=async()=>{try{await DB.doc('places/'+UID).delete();loadList()}catch(e){}};r.appendChild(xb)}
+  e.appendChild(r)})}catch(err){e.textContent='Could not load places.'}}
+
+// ---------- Crossroads (brick battle) ----------
+const SPS=[[20,.5,20],[-20,.5,20],[20,.5,-20],[-20,.5,-20],[0,.5,38],[0,.5,-38]];
+const bgeo=new THREE.SphereGeometry(.45,8,8),bmat=new THREE.MeshLambertMaterial({color:0x222222,emissive:0x222222});
+function loadCross(){addBrick(0,0,0,16,.3,190,'#555a5f');addBrick(0,0,0,190,.3,16,'#555a5f');addBrick(0,0,0,26,.6,26,'#bdc3c7',{shape:'cyl'});
+ [[-35,-10,12,4,1.5],[35,10,12,4,1.5],[10,-35,1.5,4,12],[-10,35,1.5,4,12],[-45,-45,3,3,3],[45,45,3,3,3],[-45,45,3,3,3],[45,-45,3,3,3],[-25,25,3,6,3],[25,-25,3,6,3],[25,25,3,6,3],[-25,-25,3,6,3]].forEach((q,i)=>addBrick(q[0],0,q[1],q[2],q[3],q[4],i<4?'#95a5a6':i<8?'#a1887f':'#c0392b'));
+ [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([a,b])=>{addBrick(a*70,0,b*70,10,12,10,'#34495e');addBrick(a*62.5,0,b*70,3,6,4,'#7f8c8d');addBrick(a*58,0,b*70,4,3,4,'#95a5a6')});
+ [[0,-98,196,8,2],[0,98,196,8,2],[-98,0,2,8,196],[98,0,2,8,196]].forEach(q=>addBrick(q[0],0,q[1],q[2],q[3],q[4],'#2c3e50'))}
+function fire(ox,oy,oz,dx,dy,dz,mine,who){const m=new THREE.Mesh(bgeo,bmat);m.position.set(ox,oy,oz);S.add(m);PR.push({m,vx:dx*70,vy:dy*70,vz:dz*70,t:0,mine,who})}
+function shoot(nx,ny){if(!playing||curMap!=='crossroads'||cd>0)return;cd=.35;const r=new THREE.Raycaster();r.setFromCamera(new THREE.Vector2(nx,ny),C);
+ const h=r.intersectObjects([base,...MS])[0],tg=h&&h.distance>6?h.point:r.ray.at(100,new THREE.Vector3()),o=new THREE.Vector3(P.x,P.y+3.6,P.z),d=tg.clone().sub(o).normalize();o.addScaledVector(d,2.2);
+ fire(o.x,o.y,o.z,d.x,d.y,d.z,true,myName());tone(700,250,.12);
+ GR&&GR.presence({sh:[Date.now(),+o.x.toFixed(2),+o.y.toFixed(2),+o.z.toFixed(2),+d.x.toFixed(3),+d.y.toFixed(3),+d.z.toFixed(3)]})}
+function gotHit(who){hp-=34;tone(250,120,.12,'sawtooth');if(hp<=0){tone(300,70,.4,'sawtooth');toast('Bloxxed by '+cl(who)+'!');GR&&GR.presence({dd:[Date.now(),cl(who)]});respawn()}}
+function bullets(dt){for(let i=PR.length-1;i>=0;i--){const b=PR[i];b.vy-=14*dt;const nx=b.m.position.x+b.vx*dt,ny=b.m.position.y+b.vy*dt,nz=b.m.position.z+b.vz*dt;b.t+=dt;let dead=b.t>2.2||ny<0||Math.abs(nx)>110||Math.abs(nz)>110;
+ if(!dead)for(const k of BR)if(!k.off&&ny>k.y0&&ny<k.y1&&nx>k.x0&&nx<k.x1&&nz>k.z0&&nz<k.z1){dead=true;break}
+ if(!dead&&!b.mine&&Math.abs(nx-P.x)<1.4&&Math.abs(nz-P.z)<1.4&&ny>P.y&&ny<P.y+5.4){dead=true;gotHit(b.who)}
+ if(!dead&&b.mine)for(const k in RP){const g=RP[k].g.position;if(Math.abs(nx-g.x)<1.6&&Math.abs(nz-g.z)<1.6&&ny>g.y&&ny<g.y+5.6){dead=true;tone(200,120,.08);break}}
+ if(dead){S.remove(b.m);PR.splice(i,1)}else b.m.position.set(nx,ny,nz)}}
+$('fb').addEventListener('pointerdown',e=>{shoot(0,0);e.stopPropagation()});
+
+// ---------- Studio UI (2008 style) ----------
+function renderPL(){const e=$('pl2l');e.textContent='';[myName(),...Object.values(RP).map(r=>cl(r.p&&r.p.name)||'Guest')].forEach(x=>{const d=document.createElement('div');d.textContent=x;e.appendChild(d)})}
+function tg(id){const e=$(id);e.style.display=e.style.display==='none'?'block':'none'}
+function renderEx(){const e=$('exl');e.textContent='';const hd=(t,i,c)=>{const d=document.createElement('div');d.className='ex '+(c||'');d.style.paddingLeft=i+'px';d.textContent=t;e.appendChild(d);return d};
+ hd('▾ 🌐 Workspace',2);hd('⚙ SpawnLocation',18,'dim');BR.forEach((b,i)=>{const d=hd((b.shape==='cyl'?'⬤ Cylinder ':b.lava?'🔥 Lava ':'▢ Brick ')+(i+1),18,b===SEL?'sel':'');d.onclick=()=>select(b)});
+ ['▸ 👥 Players','▸ 💡 Lighting','▸ 🎒 StarterPack','▸ 🔊 Soundscape'].forEach(t=>hd(t,2,'dim'))}
+function select(b){if(SEL&&SEL.m)SEL.m.material.emissive.set(0);SEL=b;if(b&&b.m)b.m.material.emissive.set(0x555500);fillPP();renderEx()}
+function rmBrick(b){if(b===SEL)select(null);S.remove(b.m);BR=BR.filter(x=>x!==b);MS=MS.filter(x=>x!==b.m);tone(200,100,.1);renderEx()}
+const SUB={sel:[],move:[['◀ Left','l'],['Right ▶','r'],['▲ Forward','f'],['▼ Back','b'],['⬆ Up','u'],['⬇ Down','d']],size:[['Width −','x-'],['Width +','x+'],['Height −','y-'],['Height +','y+'],['Depth −','z-'],['Depth +','z+']],rot:[['↺ 15°','-15'],['↻ 15°','15'],['↺ 90°','-90'],['↻ 90°','90']]};
+const HINT={sel:'Select tool: click a brick in the world or in Explorer.',move:'Move tool:',size:'Resize tool:',rot:'Rotate tool:'};
+function setTool(t){tool=t;['sel','move','size','rot'].forEach(k=>$('t_'+k).classList.toggle('on',k===t));const e=$('stsub');e.textContent=HINT[t]+' ';SUB[t].forEach(a=>{const b=document.createElement('button');b.className='sb';b.textContent=a[0];b.onclick=()=>subAct(t,a[1]);e.appendChild(b)})}
+const cz=(v,a,b)=>Math.min(b,Math.max(a,v));
+function subAct(t,k){if(!SEL){toast('Select a brick first');return}
+ if(t==='move'){const fx=-Math.sin(yaw),fz=-Math.cos(yaw),X=Math.abs(fx)>Math.abs(fz),fw=X?[Math.sign(fx),0,0]:[0,0,Math.sign(fz)],rt=X?[0,0,Math.sign(fx)]:[-Math.sign(fz),0,0],m={f:fw,b:fw.map(v=>-v),r:rt,l:rt.map(v=>-v),u:[0,1,0],d:[0,-1,0]}[k];SEL.x=cz(SEL.x+m[0],-100,100);SEL.y=cz(SEL.y+m[1],-5,200);SEL.z=cz(SEL.z+m[2],-100,100)}
+ else if(t==='size'){const a=k[0],sg=k[1]==='+'?1:-1;if(a==='y')SEL.h=cz(SEL.h+sg,.5,60);else if(SEL.shape==='cyl'){SEL.w=SEL.d=cz(SEL.w+sg,.5,60)}else if(a==='x')SEL.w=cz(SEL.w+sg,.5,60);else SEL.d=cz(SEL.d+sg,.5,60)}
+ else SEL.r=(SEL.r+(+k))%360;remesh()}
+function ins(kind){if(BR.length>=600){toast('Brick limit (600)');return}const cy=kind==='cyl';let x=Math.round(P.x-Math.sin(yaw)*8),z=Math.round(P.z-Math.cos(yaw)*8);const y=Math.round(P.y*2)/2,w=cy?3:4,h=cy?2:1.2,d=cy?3:2;if(nearSpawn(x,y,z,w,h,d))x+=7;
+ select(addBrick(x,y,z,w,h,d,kind==='lava'?'#ff2a00':bcol,{user:true,shape:cy?'cyl':'box',lava:kind==='lava'}));tone(500,900,.08)}
+function colr(c){if(!SEL){toast('Select a brick first');return}SEL.col=c;SEL.lava=false;SEL.m.material.color.set(c);fillPP()}
+function stNew(){[...BR].forEach(b=>rmBrick(b))}
+$('t_sel').onclick=()=>setTool('sel');$('t_move').onclick=()=>setTool('move');$('t_size').onclick=()=>setTool('size');$('t_rot').onclick=()=>setTool('rot');
+$('i_box').onclick=()=>ins('box');$('i_cyl').onclick=()=>ins('cyl');$('i_lava').onclick=()=>ins('lava');$('b_new').onclick=stNew;$('bp').onclick=()=>publishPlace();
+$('pdup').onclick=()=>{if(!SEL||BR.length>=600)return;const o=SEL;select(addBrick(o.x+2,o.y,o.z+2,o.w,o.h,o.d,o.col,{user:true,shape:o.shape,r:o.r,lava:o.lava}))};
+$('xs').onclick=()=>openMenu();$('zi').onclick=()=>dist=Math.max(6,dist-3);$('zo').onclick=()=>dist=Math.min(45,dist+3);
+$('pname').oninput=()=>{$('ttl').textContent='BLOKLAND - ['+(cl($('pname').value)||'Place1')+']'};
+const MN={File:[['New (clear all)',stNew],['Publish Place',()=>publishPlace()],['Exit Studio',()=>openMenu()]],Edit:[['Copy',()=>$('pdup').click()],['Delete',()=>$('pdel').click()]],View:[['Explorer',()=>tg('expl')],['Properties',()=>tg('props')]],Insert:[['Block',()=>ins('box')],['Cylinder',()=>ins('cyl')],['Lava Block',()=>ins('lava')]],Format:[['Red',()=>colr('#c4281c')],['Blue',()=>colr('#0d69ac')],['Green',()=>colr('#2ecc71')],['Yellow',()=>colr('#f5cd30')],['White',()=>colr('#f2f3f3')],['Black',()=>colr('#1b2a35')]],Tools:[['Select',()=>setTool('sel')],['Move',()=>setTool('move')],['Resize',()=>setTool('size')],['Rotate',()=>setTool('rot')]],Window:[['Show all panels',()=>{$('expl').style.display=$('props').style.display='block'}]],Help:[['How to build',()=>{$('hlp').style.display='block'}]]};
+Object.keys(MN).forEach(k=>{const m=document.createElement('span');m.textContent=k;m.onclick=e=>{e.stopPropagation();const d=$('ddm');d.textContent='';MN[k].forEach(it=>{const i=document.createElement('div');i.textContent=it[0];i.onclick=()=>{d.style.display='none';it[1]()};d.appendChild(i)});const r=m.getBoundingClientRect();d.style.left=r.left+'px';d.style.top=r.bottom+'px';d.style.display='block'};$('stmenu').appendChild(m)});
+document.addEventListener('click',()=>$('ddm').style.display='none');setTool('sel');renderPL();
+
+// ---------- more 2008 places ----------
+function loadStair(){addBrick(0,0,0,200,.3,200,'#ff2a00',{lava:true});CPb=addBrick(0,1,0,8,1,8,'#00c853',{cp:true});CP=[0,2.5,0];let top=0;
+ for(let i=0;i<56;i++){const a=i*.62,t=i%6,cp=i%12===11,sz=cp?5:t===1?2.4:4,y=2+i*1.15;
+  addBrick(12*Math.cos(a),y,12*Math.sin(a),sz,1,sz,cp?'#00c853':t===3?'#ff9800':t===2?'#e91e63':'hsl('+(i*12%360)+',65%,55%)',{cp,fall:!cp&&t===3,mv:!cp&&t===2?{a:2.5,s:1.4,p:i}:null});top=y+1}
+ addBrick(0,top+.3,0,10,1,10,'#ffd700');FIN=[0,0,top+1.3]}
+let DEV=null;
+function applyDev(){$('hud').classList.toggle('mob',DEV==='m');$('pad').style.display=DEV==='m'?'block':'none';$('devb').textContent=DEV==='m'?'📱 Mobile':DEV==='pc'?'💻 PC':'Not chosen yet'}
+function askDev(cb){$('dev').style.display='flex';const pick=v=>{DEV=v;applyDev();$('dev').style.display='none';cb()};$('d_m').onclick=()=>pick('m');$('d_pc').onclick=()=>pick('pc')}
+function toggleDev(){DEV=DEV==='m'?'pc':'m';applyDev()}
+let last=performance.now();
+function loop(n){requestAnimationFrame(loop);const dt=Math.min(.05,(n-last)/1000);last=n;T+=dt;
+ if(!playing)return;cd-=dt;step(dt);bullets(dt);netSend(dt);remoteStep(dt);
+ COINS.forEach(c=>{c.rotation.y+=dt*3;c.position.y+=Math.sin(T*3+c.position.x)*.01});
+ const cp=Math.cos(pitch);C.position.set(P.x+Math.sin(yaw)*cp*dist,Math.max(.8,P.y+5+Math.sin(pitch)*dist),P.z+Math.cos(yaw)*cp*dist);C.lookAt(P.x,P.y+4,P.z);R.render(S,C)}
+loadMap('obby');respawn();requestAnimationFrame(loop);
+</script></body></html>
